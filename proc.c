@@ -6,6 +6,8 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "uproc.h"
+
 
 struct {
   struct spinlock lock;
@@ -531,4 +533,24 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+int 
+sys_getprocs(void)
+{
+int max = 64;
+struct uproc *p;
+
+int i = 0;
+argint(0, &max);
+argptr(1, (char **)&p, max*sizeof(struct uproc));
+struct proc *ptr = ptable.proc;
+for(; ptr < &ptable.proc[NPROC]; ptr++) {
+  if((ptr->state == UNUSED)) {
+    continue;
+  }
+  i++;
+}
+
+return i;
 }
